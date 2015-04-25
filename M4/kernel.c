@@ -9,17 +9,23 @@ void executeProgram(char*, int);
 void terminate();
 void writeSector(char*, int);
 void deleteFile(char*);
+void writeFile(char* , char* , int);
 
 int main()
 {
     //shell:
     //makeInterrupt21();
     //interrupt(0x21, 4, "shell\0", 0x2000, 0);
-    char buffer[13312];
+    int i=0;
+    char buffer1[13312];
+    char buffer2[13312];
+    buffer2[0]="h"; buffer2[1]="e"; buffer2[2]="l"; buffer2[3]="l";
+    buffer2[4]="o";
+    for(i=5; i<13312; i++) buffer2[i]=0x0;
     makeInterrupt21();
-    interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
-    interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
-    interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
+    interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
+    interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
+    interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
     while(1);
 }
 
@@ -257,7 +263,7 @@ void deleteFile(char* name)
             break;
         map[directory[i] + 1] = 0x00;
         i++;
-        j++
+        j++;
     }
 
     writeSector(map, 1);
@@ -267,9 +273,11 @@ void deleteFile(char* name)
 void writeFile(char* name, char* buffer, int secNum){
     char map[512];
     char directory[512];
+    char buffer2[512];
     int i = 0;
     int j = 0;
     int found = 0;
+    int x = 0;
 
     readSector(map, 1);
     readSector(directory, 2);
@@ -292,6 +300,31 @@ void writeFile(char* name, char* buffer, int secNum){
             directory[i] = 0x00;
         }
     }
+    if (found == 0)
+    {
+        printString("could not write the file.\0");
+        return;
+    }
+
+    i -= 6;
+    directory[i] = 0x00;
+    i += 6;
+    j = 0;
+    for(x = 0; x < secNum ; x++){
+        if(map[x] == 0x00){
+            map[x] = 0xFF;
+            directory[i] = secNum;
+            while(j < 512){
+                buffer2[j] = buffer[j*(x+1)];
+                j++;
+            }
+            writeSector(buffer2,x);
+        }
+    }
+
+
+    writeSector(map,1);
+    writeSector(directory,2);
 
 
 }

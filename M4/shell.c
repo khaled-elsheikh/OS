@@ -22,7 +22,17 @@ int main()
 			}
 			else
 			{
-				interrupt(0x21, 0, "Bad Command\n\0", 0, 0);
+				if(input[0] == 'd' && input[1] == 'e' && input[2] == 'l' && input[3] == 'e' && input[4] == 't' && input[5] == 'e'){
+					input += 7;
+					interrupt(0x21, 7, input, 0, 0);
+
+				}else{
+					if(input[0] == 'c' && input[1] == 'o' && input[2] == 'p' && input[3] == 'y'){
+						input += 5;
+					}else{
+						interrupt(0x21, 0, "Bad Command\n\0", 0, 0);
+					}
+				}
 			}
 		}
 	}
