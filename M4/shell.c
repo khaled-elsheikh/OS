@@ -29,6 +29,7 @@ int main()
 				}else{
 					if(input[0] == 'c' && input[1] == 'o' && input[2] == 'p' && input[3] == 'y'){
 						input += 5;
+						
 					}else{
 						interrupt(0x21, 0, "Bad Command\n\0", 0, 0);
 					}
